@@ -1,3 +1,15 @@
+/// Replacing the SCMP_SYS() macro in C by using an enum
+/// # Examples
+/// ```
+/// let sccp = Seccomp::init(SCMP_ACT::ALLOW);
+///         let cmptr = SCMP_ARG_CMP{
+///             arg:0,
+///             op: SCMP_COMPARE::EQ,
+///             oprand1:1000,
+///             oprand2:10,
+///         };
+///         assert!(sccp.add_rule(SCMP_ACT::KILL, SCMP_SYS::setuid as i32, 1, cmptr) == Ok(0));
+/// ```
 #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
@@ -720,6 +732,7 @@ pub enum SCMP_SYS {
 
 // TODO: support aarch64 arm .. well is not unsupported you can also manually use i32
 
+/// SCMP_ARCH in C
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
@@ -743,6 +756,7 @@ pub enum SCMP_ARCH {
     S390X = 0x80000016,
 }
 
+/// SCMP_ACT_* in C
 #[allow(non_snake_case)]
 #[allow(dead_code)]
 pub mod SCMP_ACT {
@@ -759,6 +773,7 @@ pub mod SCMP_ACT {
     }
 }
 
+/// SCMP_FILTER_ATTR in C
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
@@ -773,6 +788,8 @@ pub enum SCMP_FILTER_ATTR {
     MAX,
 }
 
+
+/// SCMP_CMP operators
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
@@ -799,6 +816,7 @@ pub enum SCMP_COMPARE {
 #[allow(non_camel_case_types)]
 pub type SCMP_FILTER_CTX = libc::c_void;
 
+/// A struct, replace SCMP_CMP
 #[derive(Debug)]
 #[repr(C)]
 pub struct SCMP_ARG_CMP {
@@ -1068,19 +1086,20 @@ pub struct Seccomp{
 }
 
 impl Seccomp {
+    /// initialize the seccomp and set the context into the struct
     pub fn init(act: libc::c_uint) -> Self {
         Seccomp{
             ctx:unsafe { seccomp_init(act) }
         }
     }
-
+    /// load seccomp to kernel
     pub fn load(self) -> Result<libc::c_int, String> {
         match unsafe { seccomp_load(self.ctx) } {
             0 => Ok(0),
             x => Err(format!("LOAD SECCOMP FAILED WITH CODE {}", x)),
         }
     }
-
+    /// add an architecture
     pub fn add_arch(
         &self,
         arch_token: libc::c_uint,
@@ -1090,7 +1109,7 @@ impl Seccomp {
             x => Err(format!("ADD SECCOMP ARCH FAILED WITH CODE {}", x)),
         }
     }
-
+    /// remove an architecture
     pub fn remove_arch(
         &self,
         arch_token: libc::c_uint,
@@ -1149,7 +1168,7 @@ impl Seccomp {
             x => Err(format!("LOAD SECCOMP EXACT RULES FAILED WITH CODE {}", x)),
         }
     }
-
+    /// adding rule to seccomp before the seccomp loaded to kernel
     pub fn add_rule(
         &self,
         action: libc::c_uint,
@@ -1162,6 +1181,7 @@ impl Seccomp {
             x => Err(format!("LOAD SECCOMP RULE FAILED WITH CODE {}", x)),
         }
     }
+    /// adding rules(vector) to seccomp before the seccomp loaded to kernel
     pub fn add_rules(
         &self,
         action: libc::c_uint,
@@ -1188,7 +1208,7 @@ impl Seccomp {
             x => Err(format!("EXPORT SECCOMP PFC FAILED WITH CODE {}", x)),
         }
     }
-
+    /// if you are using arm/aarch64 you could use this instead of SCMP_SYS
     pub fn resolve_syscall_name(name: &str) -> i32 {
         unsafe { seccomp_syscall_resolve_name(name.as_ptr() as *const i8) }
     }
@@ -1205,6 +1225,7 @@ impl Seccomp {
             )),
         }
     }
+    /// reset the seccomp
     pub fn reset(
         &self,
         def_action: libc::c_uint,
@@ -1214,6 +1235,7 @@ impl Seccomp {
             x => Err(format!("SECCOMP RESET FAILED WITH CODE {}", x)),
         }
     }
+    /// release the seccomp from kernel
     pub fn release(ctx: *mut SCMP_FILTER_CTX) {
         unsafe { seccomp_release(ctx) }
     }
@@ -1233,7 +1255,7 @@ mod test{
             oprand2:10,
         };
         assert!(sccp.add_rule(SCMP_ACT::KILL, SCMP_SYS::setuid as i32, 1, cmptr) == Ok(0),"well ... if you seccomp is installed successfully it will return OK(0)");
-        // assert!(sccp.load() == Ok(0),"this will fail in wsl");
+        assert!(sccp.load() == Ok(0),"this will fail in wsl");
         println!("now if you use libc::secuid(1000) == 0 it will panic!")
     }
 }
