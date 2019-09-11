@@ -1,0 +1,8 @@
+[package]
+name = "libseccomp-rs"
+version = "0.1.0"
+authors = ["lemonhx <lemonhx@lemonhx.tech>"]
+edition = "2018"
+
+[dependencies]
+libc = "0.2"
