@@ -1,6 +1,6 @@
 /// Replacing the SCMP_SYS() macro in C by using an enum
 /// # Examples
-/// ```
+/// ```rust,no_run,compile_fail
 /// let sccp = Seccomp::init(SCMP_ACT::ALLOW);
 ///         let cmptr = SCMP_ARG_CMP{
 ///             arg:0,
@@ -1247,6 +1247,7 @@ mod test{
     use super::*;
     #[test]
     fn test(){
+        use super::*;
         let sccp = Seccomp::init(SCMP_ACT::ALLOW);
         let cmptr = SCMP_ARG_CMP{
             arg:0,

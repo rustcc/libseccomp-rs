@@ -2,6 +2,10 @@
 name = "libseccomp-rs"
 version = "0.1.0"
 authors = ["lemonhx <lemonhx@lemonhx.tech>"]
+license = "LXXSDT"
+repository = "https://github.com/LemonHX/libseccomp-rs"
+description = "A mid-level binding to libseccomp "
+readme = "README.md"
 edition = "2018"
 
 [dependencies]
