@@ -1,4 +1,4 @@
-# Libeccomp-rs
+# Libseccomp-rs
 
 ![docs.rs](https://docs.rs/libseccomp-rs/badge.svg)
 ![crates](https://img.shields.io/crates/v/libseccomp-rs.svg)
