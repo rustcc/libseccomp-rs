@@ -5,6 +5,8 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: rust:1.38-slim
     steps:
     - uses: actions/checkout@v1
     - name: Build
